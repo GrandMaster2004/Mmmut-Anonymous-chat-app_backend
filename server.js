@@ -1,16 +1,26 @@
 const express = require("express");
+const cors = require("cors");
 const { Server } = require("socket.io");
 const http = require("http");
+
 const app = express();
+
+// Use Express CORS middleware
+app.use(
+  cors({
+    origin: "https://mmmut-anonymous-chat-app-frontend.vercel.app",
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
+
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://127.0.0.1:5500",
-      "http://localhost:3000",
-      "https://mmmut-anonymous-chat-app-backend.vercel.app",
-    ], // Allow your client's origin
+    origin: "https://mmmut-anonymous-chat-app-frontend.vercel.app",
+    methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
