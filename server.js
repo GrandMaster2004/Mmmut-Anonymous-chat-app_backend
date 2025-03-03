@@ -6,7 +6,11 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://127.0.0.1:5500", "http://localhost:3000"], // Allow your client's origin
+    origin: [
+      "http://127.0.0.1:5500",
+      "http://localhost:3000",
+      "https://mmmut-anonymous-chat-app-backend.vercel.app",
+    ], // Allow your client's origin
   },
 });
 
