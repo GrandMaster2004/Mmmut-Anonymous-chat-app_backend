@@ -7,9 +7,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://mmmut-anonymous-chat-app-frontend.vercel.app",
-    methods: ["GET", "POST"],
-    credentials: true,
+    origin: "*",
   })
 );
 
@@ -17,9 +15,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://mmmut-anonymous-chat-app-frontend.vercel.app",
-    methods: ["GET", "POST"],
-    credentials: true,
+    origin: "*",
   },
 });
 
