@@ -5,18 +5,19 @@ const http = require("http");
 
 const app = express();
 
-// Apply CORS middleware
+// ✅ Proper CORS setup for Express & WebSockets
 app.use(
   cors({
-    origin: "https://mmmut-anonymous-chat-app-frontend.vercel.app", // Only allow frontend domain
+    origin: "https://mmmut-anonymous-chat-app-frontend.vercel.app", // Update with your frontend URL
     methods: ["GET", "POST"],
-    credentials: true,
+    allowedHeaders: ["Content-Type"],
+    credentials: true, // Allow cookies and authentication
   })
 );
 
 const server = http.createServer(app);
 
-// Configure Socket.io with CORS support
+// ✅ WebSocket CORS configuration
 const io = new Server(server, {
   cors: {
     origin: "https://mmmut-anonymous-chat-app-frontend.vercel.app",
@@ -25,41 +26,29 @@ const io = new Server(server, {
   },
 });
 
-// Root route
-app.get("/", async (req, res) => {
-  try {
-    res.send("Server is running");
-  } catch (error) {
-    console.error("Error in root route:", error);
-    res.status(500).send("Internal Server Error");
-  }
+// ✅ Simple API test
+app.get("/", (req, res) => {
+  res.send("Server is running");
 });
 
-// Socket.io connection handler with async/await
-io.on("connection", async (socket) => {
-  try {
-    console.log("New client connected:", socket.id);
+// ✅ WebSocket Connection
+io.on("connection", (socket) => {
+  console.log(`Client connected: ${socket.id}`);
 
-    // Send a welcome message
-    await socket.emit("check", "Hello world - Everything ok");
+  socket.emit("check", "Hello world - Everything is okay");
 
-    // Handle incoming messages
-    socket.on("message", async (obj) => {
-      console.log("Message received:", obj);
-      await socket.broadcast.emit("sendthis", obj);
-    });
+  socket.on("message", (obj) => {
+    console.log("Message received:", obj);
+    socket.broadcast.emit("sendthis", obj);
+  });
 
-    // Handle disconnection
-    socket.on("disconnect", () => {
-      console.log("Client disconnected:", socket.id);
-    });
-  } catch (error) {
-    console.error("Socket.io error:", error);
-  }
+  socket.on("disconnect", () => {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
 });
 
-// Start server
+// ✅ Start Server
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, async () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
