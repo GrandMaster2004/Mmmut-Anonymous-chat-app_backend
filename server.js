@@ -24,7 +24,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
     credentials: true,
   },
-  transports: ["websocket"], // 🚀 Force WebSocket connection only
+  transports: ["polling", "websocket"], // Use both polling and websocket
 });
 
 // ✅ Simple API test
