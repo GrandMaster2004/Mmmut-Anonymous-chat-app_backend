@@ -20,12 +20,11 @@ const server = http.createServer(app);
 // ✅ WebSocket CORS configuration
 const io = new Server(server, {
   cors: {
-    origin: "https://mmmut-anonymous-chat-app-frontend.vercel.app", // Update with your frontend URL
+    origin: "https://mmmut-anonymous-chat-app-frontend.vercel.app",
     methods: ["GET", "POST"],
     credentials: true,
-    transports: ["websocket", "polling"], // Ensure WebSockets & polling work
   },
-  allowEIO3: true, // Allow older versions of socket.io if needed
+  transports: ["websocket"], // 🚀 Force WebSocket connection only
 });
 
 // ✅ Simple API test
