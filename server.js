@@ -5,7 +5,6 @@ const http = require("http");
 
 const app = express();
 
-// Use Express CORS middleware
 app.use(
   cors({
     origin: "https://mmmut-anonymous-chat-app-frontend.vercel.app",
