@@ -5,7 +5,7 @@ const io = new Server(process.env.PORT || 3000, {
     origin: [
       "http://127.0.0.1:5500",
       "https://mmmut-anonymous-chat-app-frontend.vercel.app",
-      
+      "https://chattingappmmmut.netlify.app",
     ],
   },
 });
