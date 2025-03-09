@@ -3,9 +3,9 @@ const { Server } = require("socket.io");
 const io = new Server(process.env.PORT || 3000, {
   cors: {
     origin: [
-      "http://127.0.0.1:5500",
+      // "http://127.0.0.1:5500",
       "https://mmmut-anonymous-chat-app-frontend.vercel.app",
-      "https://chattingappmmmut.netlify.app",
+      // "https://chattingappmmmut.netlify.app",
     ],
   },
 });
