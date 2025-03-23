@@ -78,7 +78,7 @@ io.on("connection", (socket) => {
 async function deleteOldMessages() {
   try {
     const messagesRef = collection(db, "messages");
-    const oneDayAgo = Timestamp.fromMillis(Date.now() - 24 * 60 * 60 * 1000); // 1 day ago
+    const oneDayAgo = Timestamp.fromMillis(Date.now() - 60 * 60 * 1000); // 1 day ago
 
     const q = query(messagesRef, where("timestamp", "<", oneDayAgo));
     const snapshot = await getDocs(q);
