@@ -1,36 +1,5 @@
-const { Server } = require("socket.io");
-
-const io = new Server(process.env.PORT || 3000, {
-  cors: {
-    origin: [
-      "https://mmmut-anonymous-chat-app-frontend.vercel.app",
-      // "https://chattingappmmmut.netlify.app",
-    ],
-  },
-});
-
-let onlineUsers = 0;
-
-io.on("connection", (socket) => {
-  // console.log("connection");
-  onlineUsers++;
-
-  // Emit the updated user count to all clients
-  io.emit("onlineUsers", onlineUsers);
-
-  // socket.emit("check", "Hello world - Everything ok");
-  socket.on("message", (obj) => {
-    socket.broadcast.emit("sendthis", obj);
-  });
-
-  socket.on("disconnect", () => {
-    onlineUsers--;
-    io.emit("onlineUsers", onlineUsers);
-  });
-});
-
-// Import Firebase SDK
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+import { Server } from "socket.io";
+import { initializeApp } from "firebase/app";
 import {
   getFirestore,
   collection,
@@ -40,42 +9,92 @@ import {
   deleteDoc,
   doc,
   Timestamp,
-} from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+} from "firebase/firestore";
+
+// Initialize Socket.io Server
+const io = new Server(3000, {
+  cors: {
+    origin: ["http://127.0.0.1:5500"], // Replace with frontend origin
+  },
+});
 
 // Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCdOE4tDH5SUh-GhQXDtr-74hZm0VWk4ak",
   authDomain: "chatapp-ca958.firebaseapp.com",
-  databaseURL: "https://chatapp-ca958-default-rtdb.firebaseio.com",
   projectId: "chatapp-ca958",
-  storageBucket: "chatapp-ca958.firebasestorage.app",
+  storageBucket: "chatapp-ca958.appspot.com",
   messagingSenderId: "566318675791",
   appId: "1:566318675791:web:c5d598dbd03ed2bd24b73a",
-  measurementId: "G-V1LH4CJM9B",
 };
-
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// --- Variables to Track Users ---
+let onlineUsers = 0;
+const activeUsernames = new Map(); // socket.id -> username
+
+// --- Socket.io Connection Handling ---
+io.on("connection", (socket) => {
+  // console.log(`User connected: ${socket.id}`);
+
+  // Receive Username
+  socket.on("setUsername", (username, callback) => {
+    // Check if username already exists
+    if ([...activeUsernames.values()].includes(username)) {
+      callback({
+        success: false,
+        message: "Username already taken. Try another.",
+      });
+    } else {
+      activeUsernames.set(socket.id, username);
+      onlineUsers++;
+      callback({ success: true, message: "Username accepted" });
+      // console.log(`Username accepted: ${username}`);
+
+      // Broadcast updated online user count
+      io.emit("onlineUsers", onlineUsers);
+    }
+  });
+
+  // Handle incoming messages
+  socket.on("message", async (data) => {
+    // console.log(`Message from ${data.user}: ${data.msg}`);
+    // Save message to Firestore with timestamp
+    // await saveMessageToFirestore(data);
+
+    // Broadcast to all connected clients
+    io.emit("sendthis", data);
+  });
+
+  // Disconnect Handling
+  socket.on("disconnect", async () => {
+    // console.log(`User disconnected: ${socket.id}`);
+    // const username = activeUsernames.get(socket.id);
+    activeUsernames.delete(socket.id);
+    if (onlineUsers > 0) onlineUsers--;
+
+    // Broadcast updated online user count
+    io.emit("onlineUsers", onlineUsers);
+  });
+});
+
+// --- Firestore: Delete Old Messages ---
 async function deleteOldMessages() {
-  const oneHourAgo = new Date();
-  oneHourAgo.setHours(oneHourAgo.getHours() - 1);
-
-  const q = query(
-    collection(db, "users"),
-    where("timestamp", "<", Timestamp.fromDate(oneHourAgo))
-  );
-
   try {
+    const messagesRef = collection(db, "messages");
+    const oneDayAgo = Timestamp.fromMillis(Date.now() - 24 * 60 * 60 * 1000); // 1 day ago
+
+    const q = query(messagesRef, where("timestamp", "<", oneDayAgo));
     const snapshot = await getDocs(q);
+
     snapshot.forEach(async (docSnap) => {
-      await deleteDoc(doc(db, "users", docSnap.id));
+      await deleteDoc(doc(db, "messages", docSnap.id));
     });
   } catch (error) {
-    console.error("❌ Error deleting old messages:", error);
+    console.error("Error deleting old messages:", error);
   }
 }
 
-// Delete Old Messages Every 60 Minutes
-setInterval(deleteOldMessages, 60 * 60 * 1000);
+
+setInterval(deleteOldMessages, 60 * 60 * 1000); // Every 1 hour

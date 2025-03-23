@@ -1,16 +1,18 @@
 {
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "socket.io": "^4.8.1",
-    "ws": "^8.18.1"
-  },
-  "scripts": {
-    "start": "node server.js"
-  },
   "name": "-y",
   "version": "1.0.0",
   "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "firebase": "^11.5.0",
+    "socket.io": "^4.8.1",
+    "ws": "^8.18.1"
+  },
   "author": "",
   "license": "ISC",
   "description": ""
