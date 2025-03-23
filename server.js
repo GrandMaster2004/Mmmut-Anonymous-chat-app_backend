@@ -64,7 +64,7 @@ io.on("connection", (socket) => {
     // await saveMessageToFirestore(data);
 
     // Broadcast to all connected clients
-    io.emit("sendthis", data);
+    socket.broadcast.emit("sendthis", data);
   });
 
   // Disconnect Handling
