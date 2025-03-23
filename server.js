@@ -31,13 +31,12 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // --- Variables to Track Users ---
-let onlineUsers = 0;
+// let onlineUsers = 0;
 const activeUsernames = new Map(); // socket.id -> username
 
 // --- Socket.io Connection Handling ---
 io.on("connection", (socket) => {
   // console.log(`User connected: ${socket.id}`);
-
   // Receive Username
   socket.on("setUsername", (username, callback) => {
     // Check if username already exists
@@ -48,21 +47,17 @@ io.on("connection", (socket) => {
       });
     } else {
       activeUsernames.set(socket.id, username);
-      onlineUsers++;
+      // onlineUsers++;
       callback({ success: true, message: "Username accepted" });
       // console.log(`Username accepted: ${username}`);
 
       // Broadcast updated online user count
-      io.emit("onlineUsers", onlineUsers);
+      io.emit("onlineUsers", activeUsernames.size);
     }
   });
 
   // Handle incoming messages
   socket.on("message", async (data) => {
-    // console.log(`Message from ${data.user}: ${data.msg}`);
-    // Save message to Firestore with timestamp
-    // await saveMessageToFirestore(data);
-
     // Broadcast to all connected clients
     socket.broadcast.emit("sendthis", data);
   });
@@ -72,10 +67,10 @@ io.on("connection", (socket) => {
     // console.log(`User disconnected: ${socket.id}`);
     // const username = activeUsernames.get(socket.id);
     activeUsernames.delete(socket.id);
-    if (onlineUsers > 0) onlineUsers--;
+    // if (onlineUsers > 0) onlineUsers--;
 
     // Broadcast updated online user count
-    io.emit("onlineUsers", onlineUsers);
+    io.emit("onlineUsers", activeUsernames.sizes);
   });
 });
 
