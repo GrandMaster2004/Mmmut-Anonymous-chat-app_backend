@@ -14,7 +14,7 @@ import {
 // Initialize Socket.io Server
 const io = new Server(3000, {
   cors: {
-    origin: ["http://127.0.0.1:5500"], // Replace with frontend origin
+    origin: ["https://mmmut-anonymous-chat-app-frontend.vercel.app"], // Replace with frontend origin
   },
 });
 
@@ -95,6 +95,5 @@ async function deleteOldMessages() {
     console.error("Error deleting old messages:", error);
   }
 }
-
 
 setInterval(deleteOldMessages, 60 * 60 * 1000); // Every 1 hour
