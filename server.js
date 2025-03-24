@@ -75,23 +75,34 @@ io.on("connection", (socket) => {
 });
 
 // --- Firestore: Delete Old Messages ---
-async function deleteOldMessages() {
+async function deleteOldUsers() {
   try {
-    const messagesRef = collection(db, "messages");
-    const fiveMinutesAgo = Timestamp.fromMillis(Date.now() - 60 * 60 * 1000); // 5 minutes ago
+    const usersRef = collection(db, "users");
 
-    const q = query(messagesRef, where("timestamp", "<", fiveMinutesAgo));
+    // Calculate 5 minutes ago
+    const fiveMinutesAgo = Timestamp.fromMillis(Date.now() - 60 * 60 * 1000);
+
+    // Query: Find users with timestamp older than 5 minutes
+    const q = query(usersRef, where("timestamp", "<", fiveMinutesAgo));
     const snapshot = await getDocs(q);
 
-    const deletePromises = snapshot.docs.map((docSnap) =>
-      deleteDoc(doc(db, "messages", docSnap.id))
-    );
+    if (snapshot.empty) {
+      // console.log("No old users to delete.");
+      return;
+    }
+
+    // Delete each user document
+    const deletePromises = snapshot.docs.map((docSnap) => {
+      // console.log("Deleting user:", docSnap.id, docSnap.data());
+      return deleteDoc(doc(db, "users", docSnap.id));
+    });
 
     await Promise.all(deletePromises);
-    console.log("Old messages deleted successfully.");
+    console.log("Old users deleted successfully.");
   } catch (error) {
-    console.error("Error deleting old messages:", error);
+    console.error("Error deleting old users:", error);
   }
 }
 
-setInterval(deleteOldMessages, 20000); // Every 1 hour
+// Run every 20 seconds
+setInterval(deleteOldUsers, 60 * 60 * 1000);
