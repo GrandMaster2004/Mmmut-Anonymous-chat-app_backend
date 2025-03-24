@@ -70,7 +70,7 @@ io.on("connection", (socket) => {
     // if (onlineUsers > 0) onlineUsers--;
 
     // Broadcast updated online user count
-    io.emit("onlineUsers", activeUsernames.sizes);
+    io.emit("onlineUsers", activeUsernames.size);
   });
 });
 
