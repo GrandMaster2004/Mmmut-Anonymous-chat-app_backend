@@ -78,17 +78,20 @@ io.on("connection", (socket) => {
 async function deleteOldMessages() {
   try {
     const messagesRef = collection(db, "messages");
-    const oneDayAgo = Timestamp.fromMillis(Date.now() - 60 * 60 * 1000); // 1 day ago
+    const fiveMinutesAgo = Timestamp.fromMillis(Date.now() - 60 * 60 * 1000); // 5 minutes ago
 
-    const q = query(messagesRef, where("timestamp", "<", oneDayAgo));
+    const q = query(messagesRef, where("timestamp", "<", fiveMinutesAgo));
     const snapshot = await getDocs(q);
 
-    snapshot.forEach(async (docSnap) => {
-      await deleteDoc(doc(db, "messages", docSnap.id));
-    });
+    const deletePromises = snapshot.docs.map((docSnap) =>
+      deleteDoc(doc(db, "messages", docSnap.id))
+    );
+
+    await Promise.all(deletePromises);
+    console.log("Old messages deleted successfully.");
   } catch (error) {
     console.error("Error deleting old messages:", error);
   }
 }
 
-setInterval(deleteOldMessages, 60 * 60 * 1000); // Every 1 hour
+setInterval(deleteOldMessages, 20000); // Every 1 hour
