@@ -14,7 +14,7 @@ import {
 // Initialize Socket.io Server
 const io = new Server(3000, {
   cors: {
-    origin: ["https://mmmut-anonymous-chat-app-frontend.vercel.app"], // Replace with frontend origin
+    origin: ["https://anonymouschats.vercel.app"], // Replace with frontend origin
   },
 });
 
